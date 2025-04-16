@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+**/__pycache__/
+
+*.py[cod]
+*.pyo
+
+# Virtual environment
+env/
+venv/
+ENV/
+*.env
+*.env.*
+
+# Django Migrations (except __init__.py)
+**/migrations/
+
+# SQLite database
+db.sqlite3
+
+# Logs
+*.log
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# Byte-compiled / optimized / DLL files
+*.pyc
+*.pyd
+*.pyo
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+
+# Test cache
+.cache/
+pytest_cache/
+
+# Static and media (optional)
+staticfiles/
+media/
+
+# MyPy
+.mypy_cache/
+
+# PyInstaller
+dist/
+build/
+
+# JetBrains
+.idea/
+
+# pip
+pip-log.txt
+
+# Django local settings
+local_settings.py
