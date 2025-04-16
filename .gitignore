@@ -21,8 +21,6 @@ db.sqlite3
 # Logs
 *.log
 
-# VSCode
-.vscode/
 
 # macOS
 .DS_Store
