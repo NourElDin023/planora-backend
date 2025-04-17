@@ -33,3 +33,11 @@ This REST API serves as the backend for the **Life Tracker** frontend (built wit
 git clone https://github.com/Ayat166/Life_Tracker_Backend.git
 cd Life_Tracker_Backend
 ```
+---
+
+## 📡 Frontend Setup
+
+The frontend is available in this repo:  
+👉 [Life Tracker Frontend](https://github.com/Ayat166/Life_Tracker_Frontend)
+
+---
