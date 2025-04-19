@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Tracker - API Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 2rem;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+        }
+        .api-result {
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        h1 {
+            color: #4361ee;
+            margin-bottom: 1.5rem;
+        }
+        .nav-tabs {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container test-container">
+        <h1 class="text-center mb-4">Life Tracker API Test</h1>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab" aria-controls="login" aria-selected="true">Login</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab" aria-controls="register" aria-selected="false">Register</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="token-refresh-tab" data-bs-toggle="tab" data-bs-target="#token-refresh" type="button" role="tab" aria-controls="token-refresh" aria-selected="false">Refresh Token</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Get Profile</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="usernames-tab" data-bs-toggle="tab" data-bs-target="#usernames" type="button" role="tab" aria-controls="usernames" aria-selected="false">All Usernames</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- Login Tab -->
+            <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                <h3>Login</h3>
+                <form id="loginForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="loginUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="loginUsername" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <h5>Response:</h5>
+                <div id="loginResult" class="api-result">No response yet</div>
+            </div>
+
+            <!-- Register Tab -->
+            <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                <h3>Register</h3>
+                <form id="registerForm" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="registerUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="registerUsername" name="username" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" name="email" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="registerFirstName" class="form-label">First Name (Optional)</label>
+                            <input type="text" class="form-control" id="registerFirstName" name="first_name">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="registerLastName" class="form-label">Last Name (Optional)</label>
+                            <input type="text" class="form-control" id="registerLastName" name="last_name">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="registerPassword1" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword1" name="password" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="registerPassword2" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="registerPassword2" name="password2" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+                <h5>Response:</h5>
+                <div id="registerResult" class="api-result">No response yet</div>
+            </div>
+
+            <!-- Token Refresh Tab -->
+            <div class="tab-pane fade" id="token-refresh" role="tabpanel" aria-labelledby="token-refresh-tab">
+                <h3>Refresh Token</h3>
+                <p>Use the refresh token received from login to get a new access token</p>
+                <form id="refreshForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="refreshToken" class="form-label">Refresh Token</label>
+                        <input type="text" class="form-control" id="refreshToken" name="refresh" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Refresh Token</button>
+                </form>
+                <h5>Response:</h5>
+                <div id="refreshResult" class="api-result">No response yet</div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                <h3>Get User Profile</h3>
+                <p>Use the access token to get user profile data</p>
+                <form id="profileForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="accessToken" class="form-label">Access Token</label>
+                        <input type="text" class="form-control" id="accessToken" name="token" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get Profile</button>
+                </form>
+                <h5>Response:</h5>
+                <div id="profileResult" class="api-result">No response yet</div>
+            </div>
+            
+            <!-- All Usernames Tab -->
+            <div class="tab-pane fade" id="usernames" role="tabpanel" aria-labelledby="usernames-tab">
+                <h3>Get All Usernames</h3>
+                <p>Use the access token to get all usernames (except your own)</p>
+                <form id="usernamesForm" class="mb-4">
+                    <div class="mb-3">
+                        <label for="usernamesToken" class="form-label">Access Token</label>
+                        <input type="text" class="form-control" id="usernamesToken" name="token" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Get Usernames</button>
+                </form>
+                <h5>Response:</h5>
+                <div id="usernamesResult" class="api-result">No response yet</div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h4>API Endpoints Used:</h4>
+            <ul>
+                <li><code>/api/users/login/</code> - POST - User login</li>
+                <li><code>/api/users/register/</code> - POST - User registration</li>
+                <li><code>/api/users/token/refresh/</code> - POST - Refresh access token</li>
+                <li><code>/api/users/profile/</code> - GET - Get user profile</li>
+                <li><code>/api/users/all-usernames/</code> - GET - Get all usernames</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiBaseUrl = '/api';
+            const storagePrefix = 'lifetracker_';
+
+            // Save tokens to localStorage when received
+            function saveTokens(data) {
+                if (data.access) {
+                    localStorage.setItem(storagePrefix + 'accessToken', data.access);
+                }
+                if (data.refresh) {
+                    localStorage.setItem(storagePrefix + 'refreshToken', data.refresh);
+                }
+                if (data.user) {
+                    localStorage.setItem(storagePrefix + 'user', JSON.stringify(data.user));
+                }
+            }
+
+            // Format JSON responses
+            function formatResponse(data) {
+                return JSON.stringify(data, null, 2);
+            }
+
+            // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                const resultDiv = document.getElementById('loginResult');
+
+                resultDiv.textContent = 'Loading...';
+                resultDiv.style.color = 'black';
+
+                try {
+                    const response = await fetch(apiBaseUrl + '/users/login/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        resultDiv.style.color = 'green';
+                        saveTokens(data);
+                        
+                        // Auto-fill the token fields in other tabs
+                        if (data.refresh) {
+                            document.getElementById('refreshToken').value = data.refresh;
+                        }
+                        if (data.access) {
+                            document.getElementById('accessToken').value = data.access;
+                            document.getElementById('usernamesToken').value = data.access;
+                        }
+                    } else {
+                        resultDiv.style.color = 'red';
+                    }
+                    
+                    resultDiv.textContent = formatResponse(data);
+                } catch (error) {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = 'Error: ' + error.message;
+                }
+            });
+
+            // Register form submission
+            document.getElementById('registerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('registerUsername').value;
+                const email = document.getElementById('registerEmail').value;
+                const first_name = document.getElementById('registerFirstName').value;
+                const last_name = document.getElementById('registerLastName').value;
+                const password = document.getElementById('registerPassword1').value;
+                const password2 = document.getElementById('registerPassword2').value;
+                const resultDiv = document.getElementById('registerResult');
+
+                if (password !== password2) {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = 'Error: Passwords do not match';
+                    return;
+                }
+
+                resultDiv.textContent = 'Loading...';
+                resultDiv.style.color = 'black';
+
+                try {
+                    const response = await fetch(apiBaseUrl + '/users/register/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, email, password, password2, first_name, last_name })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        resultDiv.style.color = 'green';
+                        saveTokens(data);
+                        
+                        // Auto-fill the token fields in other tabs
+                        if (data.refresh) {
+                            document.getElementById('refreshToken').value = data.refresh;
+                        }
+                        if (data.access) {
+                            document.getElementById('accessToken').value = data.access;
+                            document.getElementById('usernamesToken').value = data.access;
+                        }
+                    } else {
+                        resultDiv.style.color = 'red';
+                    }
+                    
+                    resultDiv.textContent = formatResponse(data);
+                } catch (error) {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = 'Error: ' + error.message;
+                }
+            });
+
+            // Token refresh form submission
+            document.getElementById('refreshForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const refresh = document.getElementById('refreshToken').value;
+                const resultDiv = document.getElementById('refreshResult');
+
+                resultDiv.textContent = 'Loading...';
+                resultDiv.style.color = 'black';
+
+                try {
+                    const response = await fetch(apiBaseUrl + '/users/token/refresh/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ refresh })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        resultDiv.style.color = 'green';
+                        if (data.access) {
+                            localStorage.setItem(storagePrefix + 'accessToken', data.access);
+                            document.getElementById('accessToken').value = data.access;
+                            document.getElementById('usernamesToken').value = data.access;
+                        }
+                    } else {
+                        resultDiv.style.color = 'red';
+                    }
+                    
+                    resultDiv.textContent = formatResponse(data);
+                } catch (error) {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = 'Error: ' + error.message;
+                }
+            });
+
+            // Profile form submission
+            document.getElementById('profileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const token = document.getElementById('accessToken').value;
+                const resultDiv = document.getElementById('profileResult');
+
+                resultDiv.textContent = 'Loading...';
+                resultDiv.style.color = 'black';
+
+                try {
+                    const response = await fetch(apiBaseUrl + '/users/profile/', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        resultDiv.style.color = 'green';
+                    } else {
+                        resultDiv.style.color = 'red';
+                    }
+                    
+                    resultDiv.textContent = formatResponse(data);
+                } catch (error) {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = 'Error: ' + error.message;
+                }
+            });
+            
+            // All Usernames form submission
+            document.getElementById('usernamesForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const token = document.getElementById('usernamesToken').value;
+                const resultDiv = document.getElementById('usernamesResult');
+
+                resultDiv.textContent = 'Loading...';
+                resultDiv.style.color = 'black';
+
+                try {
+                    const response = await fetch(apiBaseUrl + '/users/all-usernames/', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        resultDiv.style.color = 'green';
+                    } else {
+                        resultDiv.style.color = 'red';
+                    }
+                    
+                    resultDiv.textContent = formatResponse(data);
+                } catch (error) {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = 'Error: ' + error.message;
+                }
+            });
+
+            // Prefill token fields with stored values if available
+            const storedAccessToken = localStorage.getItem(storagePrefix + 'accessToken');
+            const storedRefreshToken = localStorage.getItem(storagePrefix + 'refreshToken');
+            
+            if (storedAccessToken) {
+                document.getElementById('accessToken').value = storedAccessToken;
+                document.getElementById('usernamesToken').value = storedAccessToken;
+            }
+            
+            if (storedRefreshToken) {
+                document.getElementById('refreshToken').value = storedRefreshToken;
+            }
+        });
+    </script>
+</body>
+</html>
