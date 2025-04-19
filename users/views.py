@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer
+from django.shortcuts import render
 
 
 # Create your views here.
@@ -70,3 +71,9 @@ class UserListView(APIView):
     def get(self, request):
         users = User.objects.exclude(id=request.user.id).values_list("username", flat=True)
         return Response({"usernames": list(users)})
+
+
+# New view for the API test page
+def api_test_view(request):
+    """View function to serve the API test HTML page"""
+    return render(request, 'users/login_test.html')
