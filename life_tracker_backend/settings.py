@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "pages",
     "sharing",
     "notifications",
+    "tasks",  # Added tasks app here
 ]
 
 MIDDLEWARE = [
