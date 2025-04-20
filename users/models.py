@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import uuid
+from django.conf import settings
+from datetime import datetime, timedelta
 
 class User(AbstractUser):
     # AbstractUser already has:
@@ -13,3 +16,22 @@ class User(AbstractUser):
     birthdate = models.DateField(blank=True, null=True)
     facebook_profile = models.URLField(blank=True, null=True)
     country = models.CharField(max_length=255, blank=True, null=True)
+
+class EmailVerificationToken(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='verification_tokens')
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            # Set token to expire after 24 hours by default
+            self.expires_at = datetime.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+    
+    @property
+    def is_valid(self):
+        return datetime.now() < self.expires_at
+    
+    def __str__(self):
+        return f"Verification token for {self.user.username}"
