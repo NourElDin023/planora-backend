@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from pages.views import (
+    CollectionDetailWithTasks,
     PageViewSet,
     SharePageWithUsersView,
     PageByTokenView,
@@ -23,4 +24,7 @@ urlpatterns = [
         name="page-share-settings",
     ),
     path("", include(router.urls)),
+    path(
+        "<int:collection_id>/tasks/", CollectionDetailWithTasks.as_view(), name="collection-tasks"
+    ),
 ]

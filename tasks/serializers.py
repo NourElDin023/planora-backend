@@ -6,4 +6,8 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = "__all__"
-        read_only_fields = ["owner", "created_at", "updated_at"]
+        read_only_fields = [
+            "owner",
+            "created_at",
+            "updated_at",
+        ]

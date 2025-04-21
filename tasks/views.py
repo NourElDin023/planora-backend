@@ -1,26 +1,24 @@
-from django.shortcuts import render
 from rest_framework import viewsets, permissions
-from rest_framework.response import Response
 from .models import Task
 from .serializers import TaskSerializer
 
 
 class TaskViewSet(viewsets.ModelViewSet):
-    """
-    A viewset for viewing and editing task instances.
-    """
-
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Filter tasks by logged in user
-        """
-        return Task.objects.filter(owner=self.request.user).order_by("-due_date", "due_time")
+        # Allow all actions while maintaining security
+        queryset = Task.objects.filter(owner=self.request.user)
+
+        # Apply collection filter only for list actions
+        if self.action == "list":
+            collection_id = self.request.query_params.get("collection")
+            if collection_id:
+                queryset = queryset.filter(collection=collection_id)
+
+        return queryset.order_by("-due_date", "due_time")
 
     def perform_create(self, serializer):
-        """
-        Set the owner to the logged in user when creating a task
-        """
-        serializer.save(owner=self.request.user)
+        # Ensure collection is from validated data, not query params
+        serializer.save(owner=self.request.user, collection=serializer.validated_data["collection"])
