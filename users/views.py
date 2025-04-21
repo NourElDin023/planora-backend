@@ -1,11 +1,17 @@
-from users.models import User, EmailVerificationToken
+from users.models import User, EmailVerificationToken, PasswordResetToken
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSerializer
+from .serializers import (
+    UserRegistrationSerializer, 
+    UserLoginSerializer, 
+    UserSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer
+)
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.mail import send_mail
 from django.conf import settings
@@ -228,3 +234,106 @@ class UserListView(APIView):
 def api_test_view(request):
     """View function to serve the API test HTML page"""
     return render(request, 'users/login_test.html')
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            
+            try:
+                user = User.objects.get(email=email)
+                
+                # Delete any existing tokens
+                PasswordResetToken.objects.filter(user=user).delete()
+                
+                # Create new token
+                token = PasswordResetToken.objects.create(user=user)
+                
+                # Build reset link
+                protocol = 'https' if request.is_secure() else 'http'
+                frontend_domain = "localhost:5173"  # Change in production
+                reset_url = f"{protocol}://{frontend_domain}/reset-password?token={token.token}"
+                
+                # Send password reset email
+                send_mail(
+                    'Reset your Life Tracker password',
+                    f'Hi {user.username},\n\nWe received a request to reset your password. '
+                    f'Please click the link below to set a new password:\n\n'
+                    f'{reset_url}\n\n'
+                    f'This link will expire in 1 hour.\n\n'
+                    f'If you did not request a password reset, please ignore this email.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                
+                return Response(
+                    {"message": "If the email exists in our system, a password reset link has been sent."},
+                    status=status.HTTP_200_OK
+                )
+                
+            except User.DoesNotExist:
+                # For security reasons, don't reveal if the email exists or not
+                return Response(
+                    {"message": "If the email exists in our system, a password reset link has been sent."},
+                    status=status.HTTP_200_OK
+                )
+                
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            token_str = serializer.validated_data['token']
+            password = serializer.validated_data['password']
+            
+            try:
+                token = get_object_or_404(PasswordResetToken, token=token_str)
+                
+                # Check if token is expired or already used
+                if token.expires_at < timezone.now():
+                    return Response(
+                        {"error": "Password reset token has expired."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                    
+                if token.is_used:
+                    return Response(
+                        {"error": "This password reset link has already been used."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # Reset the user's password
+                user = token.user
+                user.set_password(password)
+                user.save()
+                
+                # Mark token as used
+                token.is_used = True
+                token.save()
+                
+                # Generate tokens for auto-login
+                refresh = RefreshToken.for_user(user)
+                
+                return Response({
+                    "message": "Password has been reset successfully.",
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                    "user": UserSerializer(user).data,
+                })
+                
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
