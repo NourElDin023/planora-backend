@@ -34,6 +34,7 @@ class UserLoginSerializer(serializers.Serializer):
 
 class UserSerializer(serializers.ModelSerializer):
     profile_picture = serializers.SerializerMethodField()
+    phone_number = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -48,6 +49,17 @@ class UserSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.profile_picture.url)
             return obj.profile_picture.url
         return None
+        
+    def get_phone_number(self, obj):
+        if obj.phone_number:
+            return obj.phone_number
+        return ""
+        
+    def validate_phone_number(self, value):
+        if value and value.startswith('+20'):
+            # Remove the +20 prefix if present
+            value = value[3:]
+        return value
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)

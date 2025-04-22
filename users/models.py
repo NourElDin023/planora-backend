@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 import uuid
 from django.conf import settings
 from datetime import datetime, timedelta
+from django.core.validators import RegexValidator
 
 class User(AbstractUser):
     # AbstractUser already has:
@@ -10,7 +11,11 @@ class User(AbstractUser):
     # - is_active, is_staff, is_superuser, date_joined, last_login
     # - is_activated - we'll use Django's built-in is_active field
     # Custom fields needed
-    phone_number = models.CharField(max_length=12, blank=True, null=True)
+    phone_regex = RegexValidator(
+        regex=r'^\d{10}$',
+        message="Egyptian phone number must be 10 digits without the country code (e.g., 1XXXXXXXXX)"
+    )
+    phone_number = models.CharField(validators=[phone_regex], max_length=10, blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
