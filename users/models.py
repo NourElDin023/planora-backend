@@ -12,10 +12,10 @@ class User(AbstractUser):
     # - is_activated - we'll use Django's built-in is_active field
     # Custom fields needed
     phone_regex = RegexValidator(
-        regex=r'^\d{10}$',
-        message="Egyptian phone number must be 10 digits without the country code (e.g., 1XXXXXXXXX)"
+        regex=r'^\+?1?\d{9,15}$',
+        message="Phone number must be entered in a valid format. Up to 15 digits allowed."
     )
-    phone_number = models.CharField(validators=[phone_regex], max_length=10, blank=True, null=True)
+    phone_number = models.CharField(validators=[phone_regex], max_length=20, blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
