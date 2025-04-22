@@ -1,6 +1,7 @@
 Django==5.1.7
 djangorestframework==3.15.1
 django-cors-headers==4.3.1
+django-jazzmin==3.0.1
 black==24.3.0
 flake8==7.0.0
 mypy==1.9.0
