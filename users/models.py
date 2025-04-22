@@ -10,7 +10,7 @@ class User(AbstractUser):
     # - is_active, is_staff, is_superuser, date_joined, last_login
     # - is_activated - we'll use Django's built-in is_active field
     # Custom fields needed
-    phone_number = models.CharField(max_length=12)
+    phone_number = models.CharField(max_length=12, blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
