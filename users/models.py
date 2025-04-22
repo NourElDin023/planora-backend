@@ -15,7 +15,7 @@ class User(AbstractUser):
         regex=r'^\+?1?\d{9,15}$',
         message="Phone number must be entered in a valid format. Up to 15 digits allowed."
     )
-    phone_number = models.CharField(validators=[phone_regex], max_length=20, blank=True, null=True)
+    phone_number = models.CharField(validators=[phone_regex], max_length=15, blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
