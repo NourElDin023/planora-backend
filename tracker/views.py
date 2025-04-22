@@ -7,17 +7,29 @@ from .serializers import NoteSerializer
 from django.http import JsonResponse
 
 
+# views.py
 @api_view(["GET", "POST"])
 def notes_list(request):
     if request.method == "GET":
-        notes = Note.objects.filter(user=request.user)  # Still filter by user
+        # Get notes for specific task
+        task_id = request.query_params.get("task")
+        notes = Note.objects.filter(user=request.user)
+
+        if task_id:
+            notes = notes.filter(task=task_id)
+
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data)
 
     elif request.method == "POST":
         serializer = NoteSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)  # Save with the authenticated user
+            # Ensure task belongs to user
+            task = serializer.validated_data["task"]
+            if task.owner != request.user:
+                return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
