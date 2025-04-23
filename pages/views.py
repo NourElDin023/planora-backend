@@ -12,7 +12,7 @@ from tasks.serializers import TaskSerializer
 from users.models import User
 from rest_framework.exceptions import PermissionDenied
 from notifications.models import Notification
-from django.urls import reverse
+from django.conf import settings
 
 
 class PageViewSet(viewsets.ModelViewSet):
@@ -20,10 +20,9 @@ class PageViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        # Retrieve only collections owned by the user
         user = self.request.user
-        return Collection.objects.filter(
-            Q(owner=user) | Q(shared_entries__shared_with=user), active=True
-        ).distinct()
+        return Collection.objects.filter(owner=user, active=True).distinct()
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -39,6 +38,20 @@ class PageViewSet(viewsets.ModelViewSet):
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SharedWithUserCollectionsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        # Retrieve collections shared with the user
+        user = self.request.user
+        shared_collections = Collection.objects.filter(
+            shared_entries__shared_with=user, active=True
+        ).distinct()
+
+        serializer = CollectionShareSerializer(shared_collections, many=True)
+        return Response(serializer.data, status=200)
 
 
 class SharePageWithUsersView(APIView):
@@ -58,11 +71,9 @@ class SharePageWithUsersView(APIView):
         created = []
 
         if page.is_link_shareable:
-            page_url = request.build_absolute_uri(
-                reverse("page-by-token", args=[str(page.shareable_link_token)])
-            )
+            page_url = f"{settings.FRONTEND_BASE_URL}/shared-page/{page.shareable_link_token}/"
         else:
-            page_url = request.build_absolute_uri(reverse("pages-detail", args=[page.id]))
+            page_url = f"{settings.FRONTEND_BASE_URL}/collections/{page.id}/"
 
         for user in shared_users:
             shared_entry, created_flag = SharedPage.objects.update_or_create(
@@ -137,7 +148,7 @@ class UpdateLinkShareSettingsView(APIView):
         serializer = LinkShareSettingsSerializer(page, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            link = request.build_absolute_uri(f"/api/pages/token/{page.shareable_link_token}/")
+            link = f"{settings.FRONTEND_BASE_URL}/shared-page/{page.shareable_link_token}/"
             return Response(
                 {
                     "message": "Share settings updated.",

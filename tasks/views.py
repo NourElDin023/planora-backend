@@ -1,6 +1,11 @@
+# views.py (Django)
 from rest_framework import viewsets, permissions
+from rest_framework.exceptions import PermissionDenied
+from django.db.models import Q
 from .models import Task
 from .serializers import TaskSerializer
+from sharing.models import SharedPage
+from pages.models import Collection
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -8,17 +13,40 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Allow all actions while maintaining security
-        queryset = Task.objects.filter(owner=self.request.user)
+        user = self.request.user
+        # Get all collections the user can access
+        accessible_collections = Collection.objects.filter(
+            Q(owner=user)
+            | Q(shared_entries__shared_with=user)
+            | (Q(is_link_shareable=True) & Q(shareable_permission__in=["view", "edit"]))
+        ).distinct()
 
-        # Apply collection filter only for list actions
-        if self.action == "list":
-            collection_id = self.request.query_params.get("collection")
-            if collection_id:
-                queryset = queryset.filter(collection=collection_id)
+        # Filter tasks based on collection access and optional collection filter
+        collection_id = self.request.query_params.get("collection")
+        if collection_id:
+            if not accessible_collections.filter(id=collection_id).exists():
+                return Task.objects.none()
+            return Task.objects.filter(collection=collection_id)
 
-        return queryset.order_by("-due_date", "due_time")
+        return Task.objects.filter(collection__in=accessible_collections)
 
     def perform_create(self, serializer):
-        # Ensure collection is from validated data, not query params
-        serializer.save(owner=self.request.user, collection=serializer.validated_data["collection"])
+        collection = serializer.validated_data["collection"]
+        user = self.request.user
+
+        # Owner can always create tasks
+        if collection.owner == user:
+            serializer.save(owner=user, collection=collection)
+            return
+
+        # Check for edit permission through sharing
+        if SharedPage.objects.filter(page=collection, shared_with=user, permission="edit").exists():
+            serializer.save(owner=user, collection=collection)
+            return
+
+        # Check for link-based edit permission
+        if collection.is_link_shareable and collection.shareable_permission == "edit":
+            serializer.save(owner=user, collection=collection)
+            return
+
+        raise PermissionDenied("You don't have permission to create tasks here.")
