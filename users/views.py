@@ -10,7 +10,8 @@ from .serializers import (
     UserLoginSerializer, 
     UserSerializer,
     PasswordResetRequestSerializer,
-    PasswordResetConfirmSerializer
+    PasswordResetConfirmSerializer,
+    ChangePasswordSerializer
 )
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.mail import send_mail
@@ -218,8 +219,15 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserSerializer(request.user)
+        serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
+    
+    def put(self, request):
+        serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserListView(APIView):
@@ -336,4 +344,35 @@ class PasswordResetConfirmView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
                 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            # Check if current password is correct
+            user = request.user
+            current_password = serializer.validated_data['current_password']
+            if not user.check_password(current_password):
+                return Response(
+                    {"error": "Current password is incorrect."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Set new password
+            user.set_password(serializer.validated_data['new_password'])
+            user.save()
+            
+            # Generate new tokens
+            refresh = RefreshToken.for_user(user)
+            
+            return Response({
+                "message": "Password changed successfully.",
+                "refresh": str(refresh),
+                "access": str(refresh.access_token)
+            })
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
