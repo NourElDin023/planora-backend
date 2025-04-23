@@ -2,10 +2,13 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from pages.views import (
     CollectionDetailWithTasks,
+    GetLinkShareSettingsView,
+    GetSharedUsersView,
     PageViewSet,
     SharePageWithUsersView,
     PageByTokenView,
     UpdateLinkShareSettingsView,
+    UnshareAllUsersView,
 )
 
 router = DefaultRouter()
@@ -27,4 +30,11 @@ urlpatterns = [
     path(
         "<int:collection_id>/tasks/", CollectionDetailWithTasks.as_view(), name="collection-tasks"
     ),
+    path(
+        "<int:page_id>/get-share-settings/",
+        GetLinkShareSettingsView.as_view(),
+        name="get-share-settings",
+    ),
+    path("<int:page_id>/shared-users/", GetSharedUsersView.as_view(), name="shared-users"),
+    path("<int:page_id>/unshare-all/", UnshareAllUsersView.as_view(), name="unshare-all-users"),
 ]

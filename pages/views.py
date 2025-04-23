@@ -148,3 +148,42 @@ class UpdateLinkShareSettingsView(APIView):
                 }
             )
         return Response(serializer.errors, status=400)
+
+
+# views.py
+class GetLinkShareSettingsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, page_id):
+        try:
+            page = Collection.objects.get(id=page_id, owner=request.user, active=True)
+        except Collection.DoesNotExist:
+            return Response({"error": "Page not found or not owned by you."}, status=404)
+        serializer = LinkShareSettingsSerializer(page)
+        return Response(serializer.data)
+
+
+class GetSharedUsersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, page_id):
+        try:
+            page = Collection.objects.get(id=page_id, owner=request.user, active=True)
+        except Collection.DoesNotExist:
+            return Response({"error": "Page not found or not owned by you."}, status=404)
+        shared_users = SharedPage.objects.filter(page=page).values_list(
+            "shared_with__username", flat=True
+        )
+        return Response({"shared_users": list(shared_users)})
+
+
+class UnshareAllUsersView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, page_id):
+        try:
+            page = Collection.objects.get(id=page_id, owner=request.user, active=True)
+        except Collection.DoesNotExist:
+            return Response({"error": "Page not found or not owned by you."}, status=404)
+        SharedPage.objects.filter(page=page).delete()
+        return Response({"message": "All shared users removed."}, status=200)
