@@ -9,6 +9,7 @@ from pages.views import (
     PageByTokenView,
     UpdateLinkShareSettingsView,
     UnshareAllUsersView,
+    SharedWithUserCollectionsView,
 )
 
 router = DefaultRouter()
@@ -26,6 +27,7 @@ urlpatterns = [
         UpdateLinkShareSettingsView.as_view(),
         name="page-share-settings",
     ),
+    path("shared-collections/", SharedWithUserCollectionsView.as_view(), name="shared-collections"),
     path("", include(router.urls)),
     path(
         "<int:collection_id>/tasks/", CollectionDetailWithTasks.as_view(), name="collection-tasks"
