@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from pages.views import (
+    AddToSharedCollectionsView,
     CollectionDetailWithTasks,
     GetLinkShareSettingsView,
     GetSharedUsersView,
@@ -39,4 +40,9 @@ urlpatterns = [
     ),
     path("<int:page_id>/shared-users/", GetSharedUsersView.as_view(), name="shared-users"),
     path("<int:page_id>/unshare-all/", UnshareAllUsersView.as_view(), name="unshare-all-users"),
+    path(
+        "add-to-shared/<uuid:token>/",
+        AddToSharedCollectionsView.as_view(),
+        name="add-to-shared",
+    ),
 ]

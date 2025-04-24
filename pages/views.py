@@ -70,10 +70,10 @@ class SharePageWithUsersView(APIView):
         shared_users = User.objects.filter(username__in=usernames).exclude(id=page.owner.id)
         created = []
 
-        if page.is_link_shareable:
-            page_url = f"{settings.FRONTEND_BASE_URL}/shared-page/{page.shareable_link_token}/"
-        else:
-            page_url = f"{settings.FRONTEND_BASE_URL}/collections/{page.id}/"
+        # if page.is_link_shareable:
+        #     page_url = f"{settings.FRONTEND_BASE_URL}/shared-page/{page.shareable_link_token}/"
+        # else:
+        page_url = f"{settings.FRONTEND_BASE_URL}/collections/{page.id}/"
 
         for user in shared_users:
             shared_entry, created_flag = SharedPage.objects.update_or_create(
@@ -198,3 +198,39 @@ class UnshareAllUsersView(APIView):
             return Response({"error": "Page not found or not owned by you."}, status=404)
         SharedPage.objects.filter(page=page).delete()
         return Response({"message": "All shared users removed."}, status=200)
+
+
+class AddToSharedCollectionsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, token):
+        try:
+            collection = Collection.objects.get(
+                shareable_link_token=token, is_link_shareable=True, active=True
+            )
+        except Collection.DoesNotExist:
+            return Response(
+                {"error": "Collection not found or not publicly shared."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if collection.owner == request.user:
+            return Response(
+                {"error": "You are the owner of this collection."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if SharedPage.objects.filter(page=collection, shared_with=request.user).exists():
+            return Response(
+                {"error": "This collection is already in your shared collections."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        SharedPage.objects.create(
+            page=collection, shared_with=request.user, permission=collection.shareable_permission
+        )
+
+        return Response(
+            {"message": "Collection successfully added to your shared collections."},
+            status=status.HTTP_200_OK,
+        )
