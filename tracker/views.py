@@ -1,3 +1,4 @@
+# views.py
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -6,10 +7,20 @@ from .serializers import NoteSerializer
 from django.http import JsonResponse
 
 
-@api_view(['GET', 'POST'])
+
+# views.py
+@api_view(["GET", "POST"])
 def notes_list(request):
     if request.method == 'GET':
         notes = Note.objects.filter(user=request.user)
+    if request.method == "GET":
+        # Get notes for specific task
+        task_id = request.query_params.get("task")
+        notes = Note.objects.filter(user=request.user)
+
+        if task_id:
+            notes = notes.filter(task=task_id)
+
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data)
 
@@ -21,21 +32,21 @@ def notes_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(["GET", "PUT", "DELETE"])
 def note_detail(request, pk):
     try:
         note = Note.objects.get(pk=pk, user=request.user)
     except Note.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "Note not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'GET':
+    if request.method == "GET":
         serializer = NoteSerializer(note)
         return Response(serializer.data)
 
     elif request.method == 'PUT':
         serializer = NoteSerializer(note, data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save(user=request.user)  # Update owner just in case
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -45,4 +56,4 @@ def note_detail(request, pk):
 
 
 def hello(request):
-    return JsonResponse({'message': 'Welcome to the Notes App!'})
+    return JsonResponse({"message": "Welcome to the Notes App!"})
