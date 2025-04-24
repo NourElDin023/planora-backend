@@ -5,12 +5,14 @@ from pages.views import (
     SharePageWithUsersView,
     PageByTokenView,
     UpdateLinkShareSettingsView,
+    summarize_note,
 )
 
 router = DefaultRouter()
 router.register(r"", PageViewSet, basename="pages")
 
 urlpatterns = [
+    path("summarize/", summarize_note, name='summarize-note'),
     path("share/", SharePageWithUsersView.as_view(), name="share-page"),
     path(
         "token/<uuid:shareable_link_token>/",

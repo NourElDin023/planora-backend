@@ -10,7 +10,13 @@ from users.models import User
 from rest_framework.exceptions import PermissionDenied
 from notifications.models import Notification
 from django.urls import reverse
-
+import google.generativeai as genai
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import os
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 class PageViewSet(viewsets.ModelViewSet):
     serializer_class = PageShareSerializer
@@ -118,3 +124,26 @@ class UpdateLinkShareSettingsView(APIView):
                 }
             )
         return Response(serializer.errors, status=400)
+
+
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def summarize_note(request):
+    try:
+        content = request.data.get("content", "").strip()
+
+        if not content:
+            return Response({"error": "No content provided"}, status=400)
+
+        model = genai.GenerativeModel("models/gemini-1.5-pro")
+        response = model.generate_content(f"Summarize this text:\n\n{content}")
+
+        return Response({"summary": response.text})
+
+    except Exception as e:
+        import traceback
+        print("=== Gemini API Error ===")
+        traceback.print_exc()
+        return Response({"error": str(e)}, status=500)

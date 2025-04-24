@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 class User(AbstractUser):
     # AbstractUser already has:
     # - id, username, password, first_name, last_name, email
