@@ -9,10 +9,15 @@ class CollectionCreateSerializer(serializers.ModelSerializer):
 
 
 class CollectionShareSerializer(serializers.ModelSerializer):
+    owner = serializers.SerializerMethodField()
+
     class Meta:
         model = Collection
         fields = "__all__"
         read_only_fields = ["owner", "shareable_link_token"]
+
+    def get_owner(self, obj):
+        return obj.owner.username
 
 
 class LinkShareSettingsSerializer(serializers.ModelSerializer):
