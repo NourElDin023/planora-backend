@@ -3,6 +3,8 @@ from .models import Task
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    owner = serializers.SerializerMethodField()
+
     class Meta:
         model = Task
         fields = "__all__"
@@ -11,3 +13,6 @@ class TaskSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def get_owner(self, obj):
+        return obj.owner.username
