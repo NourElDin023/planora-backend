@@ -1,11 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from pages.views import (
+    AddToSharedCollectionsView,
     CollectionDetailWithTasks,
+    GetLinkShareSettingsView,
+    GetSharedUsersView,
     PageViewSet,
     SharePageWithUsersView,
     PageByTokenView,
     UpdateLinkShareSettingsView,
+    UnshareAllUsersView,
+    SharedWithUserCollectionsView,
 )
 
 router = DefaultRouter()
@@ -23,8 +28,21 @@ urlpatterns = [
         UpdateLinkShareSettingsView.as_view(),
         name="page-share-settings",
     ),
+    path("shared-collections/", SharedWithUserCollectionsView.as_view(), name="shared-collections"),
     path("", include(router.urls)),
     path(
         "<int:collection_id>/tasks/", CollectionDetailWithTasks.as_view(), name="collection-tasks"
+    ),
+    path(
+        "<int:page_id>/get-share-settings/",
+        GetLinkShareSettingsView.as_view(),
+        name="get-share-settings",
+    ),
+    path("<int:page_id>/shared-users/", GetSharedUsersView.as_view(), name="shared-users"),
+    path("<int:page_id>/unshare-all/", UnshareAllUsersView.as_view(), name="unshare-all-users"),
+    path(
+        "add-to-shared/<uuid:token>/",
+        AddToSharedCollectionsView.as_view(),
+        name="add-to-shared",
     ),
 ]
