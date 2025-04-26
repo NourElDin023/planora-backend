@@ -20,6 +20,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             validate_password(data['password'])
         except ValidationError as e:
             raise serializers.ValidationError({"password": list(e)})
+            
+        # Case-insensitive username uniqueness check
+        username = data.get('username')
+        if User.objects.filter(username__iexact=username).exists():
+            raise serializers.ValidationError({"username": "A user with this username already exists."})
 
         return data
 
