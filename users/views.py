@@ -178,9 +178,10 @@ class LoginView(APIView):
             username = serializer.validated_data["username"]
             password = serializer.validated_data["password"]
 
-            # First check if user exists without checking activation status
+            # First check if user exists using case-insensitive username lookup
             try:
-                user = User.objects.get(username=username)
+                # Use iexact for case-insensitive lookup
+                user = User.objects.get(username__iexact=username)
                 
                 # If user exists but is not active, this is an unverified account
                 if not user.is_active:
@@ -193,8 +194,9 @@ class LoginView(APIView):
                         status=status.HTTP_403_FORBIDDEN
                     )
                 
-                # Now try to authenticate (which checks password)
-                authenticated_user = authenticate(username=username, password=password)
+                # Now try to authenticate with the actual username from the database
+                # This preserves the original case for authentication
+                authenticated_user = authenticate(username=user.username, password=password)
                 if authenticated_user:
                     refresh = RefreshToken.for_user(authenticated_user)
                     return Response(
