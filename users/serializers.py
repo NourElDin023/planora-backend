@@ -40,7 +40,6 @@ class UserLoginSerializer(serializers.Serializer):
     password = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'})
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_picture = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -48,13 +47,16 @@ class UserSerializer(serializers.ModelSerializer):
                  'bio', 'phone_number', 'birthdate', 'facebook_profile', 'country']
         read_only_fields = ['id']
     
-    def get_profile_picture(self, obj):
-        if (obj.profile_picture):
+    def to_representation(self, instance):
+        """Convert the model instance to a dictionary, with full URL for profile picture."""
+        data = super().to_representation(instance)
+        if instance.profile_picture:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.profile_picture.url)
-            return obj.profile_picture.url
-        return None
+                data['profile_picture'] = request.build_absolute_uri(instance.profile_picture.url)
+            else:
+                data['profile_picture'] = instance.profile_picture.url
+        return data
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
