@@ -207,12 +207,18 @@ class LoginView(APIView):
                         }
                     )
                 else:
-                    # User exists but password is wrong
-                    return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
+                    # User exists but password is wrong - use generic error message
+                    return Response(
+                        {"error": "Invalid credentials. Please check your username and password."},
+                        status=status.HTTP_401_UNAUTHORIZED
+                    )
                     
             except User.DoesNotExist:
-                # User doesn't exist
-                return Response({"error": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
+                # User doesn't exist - use same generic error message to prevent username enumeration
+                return Response(
+                    {"error": "Invalid credentials. Please check your username and password."},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
