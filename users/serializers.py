@@ -88,3 +88,10 @@ class ChangePasswordSerializer(serializers.Serializer):
         except ValidationError as e:
             raise serializers.ValidationError(list(e))
         return value
+
+class AccountDeactivationSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'})
+    
+class AccountDeletionSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'})
+    confirm_deletion = serializers.BooleanField(required=True)
