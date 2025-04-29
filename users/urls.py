@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     RegisterView, LoginView, UserProfileView, UserListView, api_test_view, 
     EmailVerificationView, ResendEmailVerificationView, PasswordResetRequestView,
-    PasswordResetConfirmView, ChangePasswordView
+    PasswordResetConfirmView, ChangePasswordView, AccountManagementView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -17,6 +17,8 @@ urlpatterns = [
     path("password-reset/", PasswordResetRequestView.as_view(), name="password-reset-request"),
     path("password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
     path("change-password/", ChangePasswordView.as_view(), name="change-password"),
-    # New URL pattern for the API testing page
-    path("test-api/", api_test_view, name="test-api"),
+    # Change account URL to match frontend expectations
+    path("account/", AccountManagementView.as_view(), name="account-management"),
+    path("deactivate-account/", AccountManagementView.as_view(), {'action': 'deactivate'}, name="deactivate-account"),
+    path("delete-account/", AccountManagementView.as_view(), {'action': 'delete'}, name="delete-account"),
 ]

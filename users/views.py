@@ -11,7 +11,9 @@ from .serializers import (
     UserSerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    AccountDeactivationSerializer,
+    AccountDeletionSerializer
 )
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.mail import send_mail
@@ -384,3 +386,105 @@ class ChangePasswordView(APIView):
             })
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AccountManagementView(APIView):
+    """
+    Handle account deactivation and deletion
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, action=None):
+        """
+        Handle account deactivation request
+        """
+        # If action is provided in URL pattern, use that
+        if action is None:
+            action = request.data.get('action')
+        
+        if action == 'deactivate':
+            serializer = AccountDeactivationSerializer(data=request.data)
+            if serializer.is_valid():
+                password = serializer.validated_data['password']
+                user = authenticate(username=request.user.username, password=password)
+                
+                if user is not None:
+                    # Deactivate account but keep data
+                    user.is_active = False
+                    user.save()
+                    return Response(
+                        {"success": True, "message": "Your account has been deactivated."},
+                        status=status.HTTP_200_OK
+                    )
+                else:
+                    return Response(
+                        {"success": False, "message": "Invalid password."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        elif action == 'delete':
+            serializer = AccountDeletionSerializer(data=request.data)
+            if serializer.is_valid():
+                password = serializer.validated_data['password']
+                confirm_deletion = serializer.validated_data['confirm_deletion']
+                
+                if not confirm_deletion:
+                    return Response(
+                        {"success": False, "message": "You must confirm deletion to proceed."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                    
+                user = authenticate(username=request.user.username, password=password)
+                
+                if user is not None:
+                    # Permanently delete the user account and all associated data
+                    user.delete()
+                    return Response(
+                        {"success": True, "message": "Your account and all associated data have been permanently deleted."},
+                        status=status.HTTP_200_OK
+                    )
+                else:
+                    return Response(
+                        {"success": False, "message": "Invalid password."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            return Response(
+                {"success": False, "message": "Invalid action. Use 'deactivate' or 'delete'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    def delete(self, request, action=None):
+        """Handle account deletion via DELETE method"""
+        if action == 'delete' or request.data.get('action') == 'delete':
+            # Extract password from request.data
+            password = request.data.get('password')
+            
+            if not password:
+                return Response(
+                    {"success": False, "message": "Password is required."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+            user = authenticate(username=request.user.username, password=password)
+            
+            if user is not None:
+                # Permanently delete the user account and all associated data
+                user.delete()
+                return Response(
+                    {"success": True, "message": "Your account and all associated data have been permanently deleted."},
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {"success": False, "message": "Invalid password."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        return Response(
+            {"success": False, "message": "Invalid request."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
