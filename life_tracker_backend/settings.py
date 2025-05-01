@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "sharing",
     "notifications",
     "tasks",  # Added tasks app here
+    "calendar_integration",
 ]
 
 MIDDLEWARE = [
@@ -61,7 +62,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "life_tracker_backend.urls"
 
@@ -83,6 +84,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "life_tracker_backend.wsgi.application"
 
+CORS_ALLOW_CREDENTIALS = True
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # your frontend
+]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+
+# Important cookie settings
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False   # (since localhost HTTP)
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = False     # Same reason
 
 
 load_dotenv()
@@ -152,6 +169,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Fix for Unicode encoding issues in emails
+EMAIL_USE_LOCALTIME = True
+DEFAULT_CHARSET = 'utf-8'
+
+EMAIL_HOST_USER='karamfund@gmail.com'
+EMAIL_HOST_PASSWORD='fbqq lcou tpbl sadi'
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587

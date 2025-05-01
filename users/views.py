@@ -6,8 +6,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import (
-    UserRegistrationSerializer, 
-    UserLoginSerializer, 
+    UserRegistrationSerializer,
+    UserLoginSerializer,
     UserSerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
@@ -32,15 +32,15 @@ class RegisterView(APIView):
             user = serializer.save()
             user.is_active = False
             user.save()
-            
+
             # Create verification token
             token = EmailVerificationToken.objects.create(user=user)
-            
+
             # Build verification link - use frontend verification route
             protocol = 'https' if request.is_secure() else 'http'
             frontend_domain = "localhost:5173"  # Change in production
             verification_url = f"{protocol}://{frontend_domain}/verify-email?token={token.token}"
-            
+
             # Send verification email
             send_mail(
                 'Activate your Life Tracker account',
@@ -67,7 +67,7 @@ class RegisterView(APIView):
 
 class EmailVerificationView(APIView):
     permission_classes = [AllowAny]
-    
+
     def get(self, request):
         token = request.query_params.get('token')
         if not token:
@@ -75,10 +75,10 @@ class EmailVerificationView(APIView):
                 {"success": False, "error": "Verification token is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         try:
             verification_token = get_object_or_404(EmailVerificationToken, token=token)
-            
+
             # Check if token is expired
             if verification_token.expires_at < timezone.now():
                 return Response(
@@ -89,18 +89,18 @@ class EmailVerificationView(APIView):
                     },
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             # Activate user
             user = verification_token.user
             user.is_active = True
             user.save()
-            
+
             # Delete the used token
             verification_token.delete()
-            
+
             # Generate tokens for auto-login
             refresh = RefreshToken.for_user(user)
-            
+
             return Response({
                 "success": True,
                 "message": "Email verified successfully. Your account is now active.",
@@ -109,7 +109,7 @@ class EmailVerificationView(APIView):
                 "access": str(refresh.access_token),
                 "user": UserSerializer(user).data,
             })
-            
+
         except Exception as e:
             return Response(
                 {"success": False, "error": str(e)},
@@ -119,30 +119,30 @@ class EmailVerificationView(APIView):
 
 class ResendEmailVerificationView(APIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request):
         email = request.data.get('email')
         if not email:
             return Response({"error": "Email address is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             user = User.objects.get(email=email)
-            
+
             # Check if user is already active
             if user.is_active:
                 return Response({"message": "Account is already verified."}, status=status.HTTP_200_OK)
-            
+
             # Delete any existing tokens
             EmailVerificationToken.objects.filter(user=user).delete()
-            
+
             # Create new verification token
             token = EmailVerificationToken.objects.create(user=user)
-            
+
             # Build verification link - use frontend verification route
             protocol = 'https' if request.is_secure() else 'http'
             frontend_domain = "localhost:5173"  # Change in production
             verification_url = f"{protocol}://{frontend_domain}/verify-email?token={token.token}"
-            
+
             # Send verification email
             send_mail(
                 'Activate your Life Tracker account',
@@ -155,12 +155,12 @@ class ResendEmailVerificationView(APIView):
                 [user.email],
                 fail_silently=False,
             )
-            
+
             return Response(
                 {"message": "Verification email has been sent. Please check your inbox."},
                 status=status.HTTP_200_OK
             )
-            
+
         except User.DoesNotExist:
             # For security reasons, don't reveal if the email exists or not
             return Response(
@@ -181,7 +181,7 @@ class LoginView(APIView):
             # First check if user exists without checking activation status
             try:
                 user = User.objects.get(username=username)
-                
+
                 # If user exists but is not active, this is an unverified account
                 if not user.is_active:
                     return Response(
@@ -192,7 +192,7 @@ class LoginView(APIView):
                         },
                         status=status.HTTP_403_FORBIDDEN
                     )
-                
+
                 # Now try to authenticate (which checks password)
                 authenticated_user = authenticate(username=username, password=password)
                 if authenticated_user:
@@ -207,7 +207,7 @@ class LoginView(APIView):
                 else:
                     # User exists but password is wrong
                     return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
-                    
+
             except User.DoesNotExist:
                 # User doesn't exist
                 return Response({"error": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -221,7 +221,7 @@ class UserProfileView(APIView):
     def get(self, request):
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data)
-    
+
     def put(self, request):
         serializer = UserSerializer(request.user, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
@@ -246,26 +246,26 @@ def api_test_view(request):
 
 class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
-            
+
             try:
                 user = User.objects.get(email=email)
-                
+
                 # Delete any existing tokens
                 PasswordResetToken.objects.filter(user=user).delete()
-                
+
                 # Create new token
                 token = PasswordResetToken.objects.create(user=user)
-                
+
                 # Build reset link
                 protocol = 'https' if request.is_secure() else 'http'
                 frontend_domain = "localhost:5173"  # Change in production
                 reset_url = f"{protocol}://{frontend_domain}/reset-password?token={token.token}"
-                
+
                 # Send password reset email
                 send_mail(
                     'Reset your Life Tracker password',
@@ -278,78 +278,78 @@ class PasswordResetRequestView(APIView):
                     [user.email],
                     fail_silently=False,
                 )
-                
+
                 return Response(
                     {"message": "If the email exists in our system, a password reset link has been sent."},
                     status=status.HTTP_200_OK
                 )
-                
+
             except User.DoesNotExist:
                 # For security reasons, don't reveal if the email exists or not
                 return Response(
                     {"message": "If the email exists in our system, a password reset link has been sent."},
                     status=status.HTTP_200_OK
                 )
-                
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         if serializer.is_valid():
             token_str = serializer.validated_data['token']
             password = serializer.validated_data['password']
-            
+
             try:
                 token = get_object_or_404(PasswordResetToken, token=token_str)
-                
+
                 # Check if token is expired or already used
                 if token.expires_at < timezone.now():
                     return Response(
                         {"error": "Password reset token has expired."},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                    
+
                 if token.is_used:
                     return Response(
                         {"error": "This password reset link has already been used."},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-                
+
                 # Reset the user's password
                 user = token.user
                 user.set_password(password)
                 user.save()
-                
+
                 # Mark token as used
                 token.is_used = True
                 token.save()
-                
+
                 # Generate tokens for auto-login
                 refresh = RefreshToken.for_user(user)
-                
+
                 return Response({
                     "message": "Password has been reset successfully.",
                     "refresh": str(refresh),
                     "access": str(refresh.access_token),
                     "user": UserSerializer(user).data,
                 })
-                
+
             except Exception as e:
                 return Response(
                     {"error": str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-                
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
@@ -361,18 +361,18 @@ class ChangePasswordView(APIView):
                     {"error": "Current password is incorrect."},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
+
             # Set new password
             user.set_password(serializer.validated_data['new_password'])
             user.save()
-            
+
             # Generate new tokens
             refresh = RefreshToken.for_user(user)
-            
+
             return Response({
                 "message": "Password changed successfully.",
                 "refresh": str(refresh),
                 "access": str(refresh.access_token)
             })
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
