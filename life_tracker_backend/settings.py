@@ -155,6 +155,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_USE_LOCALTIME = True
+EMAIL_CHARSET = 'utf-8'  # Force UTF-8 encoding for emails
 
 # Custom user model
 AUTH_USER_MODEL = "users.User"

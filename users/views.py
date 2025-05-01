@@ -23,6 +23,17 @@ from django.utils import timezone
 from django.http import HttpResponse
 
 
+# Utility function to sanitize email text
+def sanitize_email_text(text):
+    """Sanitize text for email by replacing problematic characters"""
+    if isinstance(text, str):
+        # Replace non-breaking space with regular space
+        text = text.replace('\xa0', ' ')
+        # Replace other potentially problematic characters
+        text = text.replace('\u2019', "'")  # Replace smart quotes
+    return text
+
+
 # Create your views here.
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -43,14 +54,19 @@ class RegisterView(APIView):
             frontend_domain = "localhost:5173"  # Change in production
             verification_url = f"{protocol}://{frontend_domain}/verify-email?token={token.token}"
             
-            # Send verification email
-            send_mail(
-                'Activate your Life Tracker account',
+            # Sanitize email body
+            email_body = sanitize_email_text(
                 f'Hi {user.username},\n\nThank you for registering with Life Tracker! '
                 f'Please click the link below to verify your email and activate your account:\n\n'
                 f'{verification_url}\n\n'
                 f'This link will expire in 24 hours.\n\n'
-                f'If you did not create this account, please ignore this email.',
+                f'If you did not create this account, please ignore this email.'
+            )
+
+            # Send verification email
+            send_mail(
+                'Activate your Life Tracker account',
+                email_body,
                 settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
