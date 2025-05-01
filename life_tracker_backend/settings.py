@@ -29,7 +29,8 @@ FRONTEND_BASE_URL = config("FRONTEND_BASE_URL", "http://localhost:5173")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Add this to allow all hosts to access the backend
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
