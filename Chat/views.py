@@ -7,8 +7,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import os
+from dotenv import load_dotenv
 
-genai.configure(api_key="AIzaSyDDFY5sMIAsrLBuQOfncceRKgHEkixhlRQ")
+
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # Optional: Keep chat history in memory (you can store it in a DB instead)
 chat_history = {}
