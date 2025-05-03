@@ -214,21 +214,21 @@ SIMPLE_JWT = {
 
 JAZZMIN_SETTINGS = {
     # Title on the login screen (19 chars max)
-    "site_title": "Life Tracker Admin",
+    "site_title": "Planora Admin",
     # Title on the brand (19 chars max)
-    "site_header": "Life Tracker",
+    "site_header": "Planora",
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "Life Tracker",
+    "site_brand": "Planora",
     # square logo to use for your site, must be present in static files, used for favicon and brand on top left
     "site_logo": "img/planora-logo-white.png",
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
     "login_logo": "img/planora-logo-white.png",
     # Welcome text on the login screen
-    "welcome_sign": "Welcome to Life Tracker Admin",
+    "welcome_sign": "Welcome to Planora Admin",
     # CSS classes that are applied to the logo above
     "site_logo_classes": "shadow-none",
     # Copyright on the footer
-    "copyright": "Life Tracker Ltd",
+    "copyright": "Planora Ltd",
     # List of model admins to search from the search bar, search bar omitted if excluded
     # If you want to use a single search field you dont need to use a list, you can use a simple string
     "search_model": ["users.User", "tasks.Task", "pages.Collection", "tracker.Note"],
