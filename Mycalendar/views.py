@@ -16,7 +16,7 @@ OUTLOOK_CLIENT_ID = settings.OUTLOOK_CLIENT_ID
 
 def outlook_login(request):
     if not request.user.is_authenticated:
-        print("OUTLOOK_CLIENT_ID =", os.getenv('OUTLOOK_CLIENT_ID'))
+        # print("OUTLOOK_CLIENT_ID =", os.getenv('OUTLOOK_CLIENT_ID'))
 
         scope = "offline_access Calendars.ReadWrite"
         auth_url = (

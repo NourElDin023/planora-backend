@@ -54,10 +54,6 @@ INSTALLED_APPS = [
     "tasks",  # Added tasks app here
     "Mycalendar",
     "Chat",
-    "pages",
-    "sharing",
-    "notifications",
-    "tasks",  # Added tasks app here
 ]
 
 MIDDLEWARE = [
