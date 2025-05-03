@@ -10,6 +10,9 @@ urlpatterns = [
     path("api/collections/", include("pages.urls")),
     path("api/notifications/", include("notifications.urls")),
     path("api/tasks/", include("tasks.urls")),
+    path("api/calendar/", include("Mycalendar.urls")),
+    path("api/chat/", include("Chat.urls")),
+
 ]
 
 # Serve media files in development

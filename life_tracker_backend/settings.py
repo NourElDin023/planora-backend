@@ -31,6 +31,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = '/api/users/login'
+# LOGIN_REDIRECT_URL = 'http:localhost:8000/api/calendar/login/'  # After login, go here
 
 # Application definition
 
@@ -50,6 +52,8 @@ INSTALLED_APPS = [
     "sharing",
     "notifications",
     "tasks",  # Added tasks app here
+    "Mycalendar",
+    "Chat",
 ]
 
 MIDDLEWARE = [
@@ -62,7 +66,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "life_tracker_backend.urls"
 
@@ -169,6 +173,15 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
 }
 
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # or whatever your frontend runs on
+]
+
+SESSION_COOKIE_SAMESITE = "Lax"  # or "None" for cross-site
+SESSION_COOKIE_SECURE = False    # set to True in production with HTTPS
+
 # Simple JWT settings
 
 SIMPLE_JWT = {
@@ -177,23 +190,23 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
-    
+
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
     "VERIFYING_KEY": None,
     "AUDIENCE": None,
     "ISSUER": None,
-    
+
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
-    
+
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
-    
+
     "JTI_CLAIM": "jti",
-    
+
     "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
@@ -235,3 +248,13 @@ JAZZMIN_UI_TWEAKS = {
     },
     "actions_sticky_top": False,
 }
+
+#calendar settings
+import os
+
+OUTLOOK_CLIENT_ID = os.getenv("OUTLOOK_CLIENT_ID")
+OUTLOOK_CLIENT_SECRET = os.getenv("OUTLOOK_CLIENT_SECRET")
+OUTLOOK_TENANT_ID = os.getenv("OUTLOOK_TENANT_ID", "common")
+# OUTLOOK_REDIRECT_URI = os.getenv("OUTLOOK_REDIRECT_URI")
+
+OUTLOOK_REDIRECT_URI = "http://localhost:8000/api/calendar/sync"

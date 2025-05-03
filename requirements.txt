@@ -4,8 +4,12 @@ django-cors-headers==4.3.1
 django-jazzmin==3.0.1
 black==24.3.0
 flake8==7.0.0
+google-generativeai==0.3.2
 mypy==1.9.0
 psycopg2-binary==2.9.10
 djangorestframework-simplejwt==5.5.0
 python-decouple==3.8
 pillow==11.2.1
+python-dotenv==1.0.1
+requests==2.31.0
+
