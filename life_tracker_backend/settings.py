@@ -213,7 +213,87 @@ SIMPLE_JWT = {
 }
 
 JAZZMIN_SETTINGS = {
-    "show_ui_builder": True,
+    # Title on the login screen (19 chars max)
+    "site_title": "Life Tracker Admin",
+    # Title on the brand (19 chars max)
+    "site_header": "Life Tracker",
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "Life Tracker",
+    # square logo to use for your site, must be present in static files, used for favicon and brand on top left
+    "site_logo": "img/planora-logo-white.png",
+    # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
+    "login_logo": "img/planora-logo-white.png",
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome to Life Tracker Admin",
+    # CSS classes that are applied to the logo above
+    "site_logo_classes": "shadow-none",
+    # Copyright on the footer
+    "copyright": "Life Tracker Ltd",
+    # List of model admins to search from the search bar, search bar omitted if excluded
+    # If you want to use a single search field you dont need to use a list, you can use a simple string
+    "search_model": ["users.User", "tasks.Task", "pages.Collection", "tracker.Note"],
+    # Field name on user model that contains avatar image
+    "user_avatar": "profile_picture",
+    ############
+    # Top Menu #
+    ############
+    # Links to put along the top menu
+    "topmenu_links": [
+        # Url that gets reversed (Permissions can be added)
+        {"name": "Dashboard", "url": "admin:index", "permissions": ["auth.view_user"]},
+        # External url that opens in a new window (Permissions can be added)
+        {"name": "Frontend", "url": FRONTEND_BASE_URL, "new_window": True},
+        # App with dropdown menu to all its models pages (Permissions checked against models)
+        {"app": "users"},
+        {"app": "tasks"},
+        {"app": "pages"},
+    ],
+    #############
+    # Side Menu #
+    #############
+    # Whether to display the side menu
+    "show_sidebar": True,
+    # Whether to aut expand the menu
+    "navigation_expanded": True,
+    # Hide these models from the sidebar
+    "hide_models": ["auth.group"],
+    # Custom icons for side menu apps/models
+    # Icons can be found at https://fontawesome.com/icons?d=gallery&m=free
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "users.user": "fas fa-user",
+        "tasks.task": "fas fa-tasks",
+        "pages.collection": "fas fa-folder",
+        "tracker.note": "fas fa-sticky-note",
+        "notifications.notification": "fas fa-bell",
+        "sharing.sharedpage": "fas fa-share-alt",
+        "users.emailverificationtoken": "fas fa-envelope",
+    },
+    # Icons that are used when one is not manually specified
+    "default_icon_parents": "fas fa-folder",
+    "default_icon_children": "fas fa-circle",
+    #################
+    # Related Modal #
+    #################
+    # Use modals instead of popups
+    "related_modal_active": True,
+    #############
+    # UI Tweaks #
+    #############
+    # Relative paths to custom CSS/JS scripts (must be present in static files)
+    "custom_css": None,
+    "custom_js": None,
+    ###############
+    # Change view #
+    ###############
+    # Set to single for no tabs and dividers
+    "changeform_format": "single",
+    # override change forms on a per modeladmin basis
+    "changeform_format_overrides": {
+        "users.user": "single",
+    },
+    # Show titles for tabs (set false to hide titles)
+    "show_ui_builder": False,
 }
 
 JAZZMIN_UI_TWEAKS = {
