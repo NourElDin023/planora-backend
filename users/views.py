@@ -80,8 +80,8 @@ class RegisterView(APIView):
 
             # Send verification email
             send_mail(
-                "Activate your Life Tracker account",
-                f"Hi {user.username},\n\nThank you for registering with Life Tracker! "
+                "Activate your Planora account",
+                f"Hi {user.username},\n\nThank you for registering with Planora! "
                 f"Please click the link below to verify your email and activate your account:\n\n"
                 f"{verification_url}\n\n"
                 f"This link will expire in 24 hours.\n\n"
@@ -185,7 +185,7 @@ class ResendEmailVerificationView(APIView):
 
             # Send verification email
             send_mail(
-                "Activate your Life Tracker account",
+                "Activate your Planora account",
                 f"Hi {user.username},\n\nYou have requested a new verification link. "
                 f"Please click the link below to verify your email and activate your account:\n\n"
                 f"{verification_url}\n\n"
@@ -320,7 +320,7 @@ class PasswordResetRequestView(APIView):
 
                 # Send password reset email
                 send_mail(
-                    "Reset your Life Tracker password",
+                    "Reset your Planora password",
                     f"Hi {user.username},\n\nWe received a request to reset your password. "
                     f"Please click the link below to set a new password:\n\n"
                     f"{reset_url}\n\n"
