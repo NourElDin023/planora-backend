@@ -19,6 +19,6 @@ urlpatterns = [
     path("change-password/", ChangePasswordView.as_view(), name="change-password"),
     # Change account URL to match frontend expectations
     path("account/", AccountManagementView.as_view(), name="account-management"),
-    path("deactivate-account/", AccountManagementView.as_view(), {'action': 'deactivate'}, name="deactivate-account"),
-    path("delete-account/", AccountManagementView.as_view(), {'action': 'delete'}, name="delete-account"),
+    path("deactivate-account/", AccountManagementView.as_view(), {"action": "deactivate"}, name="deactivate-account"),
+    path("delete-account/", AccountManagementView.as_view(), {"action": "delete"}, name="delete-account"),
 ]
