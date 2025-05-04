@@ -27,9 +27,11 @@ SECRET_KEY = config("SECRET_KEY")
 FRONTEND_BASE_URL = config("FRONTEND_BASE_URL", "http://localhost:5173")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# For local development, we want DEBUG=True by default
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+# Add your domain names to ALLOWED_HOSTS in production
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 LOGIN_URL = '/api/users/login'
 # LOGIN_REDIRECT_URL = 'http:localhost:8000/api/calendar/login/'  # After login, go here
@@ -179,8 +181,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # or whatever your frontend runs on
 ]
 
+# Update session cookie settings for production
 SESSION_COOKIE_SAMESITE = "Lax"  # or "None" for cross-site
-SESSION_COOKIE_SECURE = False    # set to True in production with HTTPS
+SESSION_COOKIE_SECURE = not DEBUG  # True in production, False in development
 
 # Simple JWT settings
 
