@@ -2,8 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.conf import settings
-from django.conf.urls.static import static
+from .swagger import swagger_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -14,8 +13,10 @@ urlpatterns = [
     path("api/tasks/", include("tasks.urls")),
     path("api/calendar/", include("Mycalendar.urls")),
     path("api/chat/", include("Chat.urls")),
-
 ]
+
+# Add Swagger URL patterns
+urlpatterns += swagger_urlpatterns
 
 # Serve media files in development
 if settings.DEBUG:

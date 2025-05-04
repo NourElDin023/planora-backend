@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "tasks",  # Added tasks app here
     "Mycalendar",
     "Chat",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
