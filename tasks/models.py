@@ -10,7 +10,10 @@ class Task(models.Model):
     title = models.CharField(max_length=255)
     details = models.TextField(blank=True, null=True)
     due_date = models.DateField()
-    due_time = models.TimeField()
+
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    
     category = models.CharField(max_length=100)
     task_icon = models.ImageField(upload_to="task_icons/", blank=True, null=True)
     completed = models.BooleanField(default=False)

@@ -59,3 +59,5 @@ pip-log.txt
 
 # Django local settings
 local_settings.py
+#google_calendar_client_secret_filw
+google_credentials.json
