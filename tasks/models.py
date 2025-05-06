@@ -15,6 +15,7 @@ class Task(models.Model):
     end_time = models.TimeField()
     
     category = models.CharField(max_length=100)
+    color = models.CharField(max_length=30, blank=True, null=True, default="#039be5")  # Default blue color for events
     task_icon = models.ImageField(upload_to="task_icons/", blank=True, null=True)
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
