@@ -35,11 +35,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 
 LOGIN_URL = '/api/users/login'
 # LOGIN_REDIRECT_URL = 'http:localhost:8000/api/calendar/login/'  # After login, go here
-#calendar settings
-
-GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
-GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI')
+# calendar settings
 
 # Application definition
 
