@@ -36,14 +36,10 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 LOGIN_URL = '/api/users/login'
 # LOGIN_REDIRECT_URL = 'http:localhost:8000/api/calendar/login/'  # After login, go here
 #calendar settings
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+GOOGLE_CLIENT_ID = config('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = config('GOOGLE_CLIENT_SECRET')
+GOOGLE_REDIRECT_URI = config('GOOGLE_REDIRECT_URI')
 
 # Application definition
 
