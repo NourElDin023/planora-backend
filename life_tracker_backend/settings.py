@@ -178,9 +178,11 @@ REST_FRAMEWORK = {
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  # or whatever your frontend runs on
-]
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default="http://localhost:5173",
+).split(",")
+
 
 # Update session cookie settings for production
 SESSION_COOKIE_SAMESITE = "Lax"  # or "None" for cross-site
