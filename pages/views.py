@@ -117,15 +117,25 @@ class CollectionDetailWithTasks(APIView):
 
     def get(self, request, collection_id):
         try:
-            collection = (
-                Collection.objects.filter(
-                    Q(id=collection_id),
-                    Q(owner=request.user) | Q(shared_entries__shared_with=request.user),
-                    active=True,
+            # First try to find the collection with direct access rights
+            try:
+                collection = (
+                    Collection.objects.filter(
+                        Q(id=collection_id),
+                        Q(owner=request.user) | Q(shared_entries__shared_with=request.user),
+                        active=True,
+                    )
+                    .distinct()
+                    .get()
                 )
-                .distinct()
-                .get()
-            )
+            except Collection.DoesNotExist:
+                # If not found, check if it's a link-shareable collection
+                collection = Collection.objects.get(
+                    id=collection_id,
+                    is_link_shareable=True, 
+                    shareable_permission__in=["view", "edit"],
+                    active=True
+                )
         except Collection.DoesNotExist:
             return Response({"error": "Collection not found or no access."}, status=404)
 

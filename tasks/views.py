@@ -15,18 +15,28 @@ class TaskViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         # Get all collections the user can access
+        # Only include collections that are:
+        # 1. Owned by the user
+        # 2. Explicitly shared with the user via SharedPage
+        # 3. Don't include link-shareable collections by default - they should only be accessible after visiting the shared link
         accessible_collections = Collection.objects.filter(
             Q(owner=user)
             | Q(shared_entries__shared_with=user)
-            | (Q(is_link_shareable=True) & Q(shareable_permission__in=["view", "edit"]))
         ).distinct()
 
         # Filter tasks based on collection access and optional collection filter
         collection_id = self.request.query_params.get("collection")
         if collection_id:
-            if not accessible_collections.filter(id=collection_id).exists():
-                return Task.objects.none()
-            return Task.objects.filter(collection=collection_id)
+            # For specific collection requests, check if it's a link-shareable collection separately
+            # This allows direct API calls to still work when needed
+            collection = Collection.objects.filter(id=collection_id).first()
+            if collection and (
+                collection.owner == user 
+                or SharedPage.objects.filter(page=collection, shared_with=user).exists()
+                or (collection_id and collection.is_link_shareable and collection.shareable_permission in ["view", "edit"])
+            ):
+                return Task.objects.filter(collection=collection_id)
+            return Task.objects.none()
 
         return Task.objects.filter(collection__in=accessible_collections)
 
@@ -41,11 +51,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         # Check for edit permission through sharing
         if SharedPage.objects.filter(page=collection, shared_with=user, permission="edit").exists():
-            serializer.save(owner=user, collection=collection)
-            return
-
-        # Check for link-based edit permission
-        if collection.is_link_shareable and collection.shareable_permission == "edit":
             serializer.save(owner=user, collection=collection)
             return
 
