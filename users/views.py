@@ -75,8 +75,8 @@ class RegisterView(APIView):
 
             # Build verification link - use frontend verification route
             protocol = "https" if request.is_secure() else "http"
-            frontend_domain = "localhost:5173"  # Change in production
-            verification_url = f"{protocol}://{frontend_domain}/verify-email?token={token.token}"
+            # Get frontend URL from settings (removes hardcoded value)
+            verification_url = f"{settings.FRONTEND_BASE_URL}/verify-email?token={token.token}"
 
             # Send verification email
             send_mail(
@@ -180,8 +180,8 @@ class ResendEmailVerificationView(APIView):
 
             # Build verification link - use frontend verification route
             protocol = "https" if request.is_secure() else "http"
-            frontend_domain = "localhost:5173"  # Change in production
-            verification_url = f"{protocol}://{frontend_domain}/verify-email?token={token.token}"
+            # Get frontend URL from settings (removes hardcoded value)
+            verification_url = f"{settings.FRONTEND_BASE_URL}/verify-email?token={token.token}"
 
             # Send verification email
             send_mail(
@@ -315,8 +315,8 @@ class PasswordResetRequestView(APIView):
 
                 # Build reset link
                 protocol = "https" if request.is_secure() else "http"
-                frontend_domain = "localhost:5173"  # Change in production
-                reset_url = f"{protocol}://{frontend_domain}/reset-password?token={token.token}"
+                # Get frontend URL from settings (removes hardcoded value)
+                reset_url = f"{settings.FRONTEND_BASE_URL}/reset-password?token={token.token}"
 
                 # Send password reset email
                 send_mail(
